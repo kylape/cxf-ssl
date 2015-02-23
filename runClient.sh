@@ -18,12 +18,12 @@ if [ "x$JAVA_HOME" = "x" ]; then
   exit 1
 fi
 
-ant setup-example-two-way-ssl
+ant -f keytool-build.xml setup-example-two-way-ssl
 
-ant #Build the project
+mvn install
 
 echo "Copying jbossweb.keystore"
-cp WEB-INF/classes/jbossweb.keystore $JBOSS_HOME/standalone/configuration
+cp src/main/resources/jbossweb.keystore $JBOSS_HOME/standalone/configuration
 
 if [ $? -gt 0 ]; then
   exit $?
@@ -35,13 +35,9 @@ sleep 5
 echo "Adding HTTPS connector..."
 $JBOSS_HOME/bin/jboss-cli.sh -c --file=installHttps.cli
 
-$JBOSS_HOME/bin/jboss-cli.sh -c --commands="deploy dist/cxfSsl.war --force"
-if [ "$1" == "-s" ]; then
-  curl -s -H "Content-Type: text/xml" -d "`cat request.xml`" http://localhost:8080/cxfSsl/clientEndpoint | xmllint --format -
-  echo
-else
-  ant test
-fi
+mvn jboss-as:deploy
+curl -s -H "Content-Type: text/xml" -d @request.xml http://localhost:8080/cxfSsl/clientEndpoint | xmllint --format -
+echo
 
 # $JBOSS_HOME/bin/jboss-cli.sh -c --commands="undeploy cxfSsl.war"
 

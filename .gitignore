@@ -1,2 +1,4 @@
 tags
 target/
+*.log*
+src/main/resources/*.keystore*
