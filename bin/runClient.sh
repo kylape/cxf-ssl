@@ -18,7 +18,11 @@ if [ "x$JAVA_HOME" = "x" ]; then
   exit 1
 fi
 
-ant -f keytool-build.xml setup-example-two-way-ssl
+CURRENT_DIR=`pwd`
+BASE_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )
+
+cd $BASE_DIR
+ant -f bin/keytool-build.xml setup-example-two-way-ssl
 
 mvn install
 
@@ -33,18 +37,18 @@ echo "Starting JBoss..."
 $JBOSS_HOME/bin/standalone.sh -Djavax.net.debug=ssl,handshake > server.log &
 sleep 5
 echo "Adding HTTPS connector..."
-$JBOSS_HOME/bin/jboss-cli.sh -c --file=installHttps.cli
+$JBOSS_HOME/bin/jboss-cli.sh -c --file=bin/installHttps.cli
 
 mvn jboss-as:deploy
-curl -s -H "Content-Type: text/xml" -d @request.xml http://localhost:8080/cxfSsl/clientEndpoint | xmllint --format -
+curl -s -H "Content-Type: text/xml" -d @bin/request.xml http://localhost:8080/cxfSsl/clientEndpoint | xmllint --format -
 echo
 
-# $JBOSS_HOME/bin/jboss-cli.sh -c --commands="undeploy cxfSsl.war"
-
-# echo "Removing HTTPS connector..."
-# $JBOSS_HOME/bin/jboss-cli.sh -c --file=uninstallHttps.cli
-# echo "Stopping JBoss..."
+echo "Removing HTTPS connector..."
+$JBOSS_HOME/bin/jboss-cli.sh -c --file=bin/uninstallHttps.cli
+echo "Stopping JBoss..."
 kill `jps | grep "jboss-modules.jar" | cut -f 1 -d " "`
 
 #Clean things up so this script can be re-run more easily
-# rm WEB-INF/classes/jbossweb.keystore* WEB-INF/classes/client.keystore*
+rm src/main/resources/jbossweb.keystore* src/main/resources/client.keystore*
+
+cd $CURRENT_DIR

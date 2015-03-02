@@ -4,7 +4,7 @@ This is a project to show how to set up a JBossWS CXF SSL client.  Among other
 things, it also shows how you could automate the installation of an HTTPS
 connection in EAP 6 and configure a standalone client to use JBoss LogManager.
 This example will set up two-way authentication between the client and server.
-Specifically running `./runClient.sh` will:
+Specifically running `bin/runClient.sh` will:
 
 - Generate a client and server keystore
   - Put each others' certificates in each others' keystores
